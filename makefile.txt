@@ -1,0 +1,31 @@
+.PHONY: all module demo run_demo test run_test clean rebuild
+
+all: demo test
+
+module: HashMap.o
+
+HashMap.o: HashMap.cpp HashMap.h
+	g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 -c HashMap.cpp -o HashMap.o
+
+demo: demo.o HashMap.o
+	g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 demo.o HashMap.o -o demo
+
+demo.o: demo.cpp HashMap.h
+	g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 -c demo.cpp -o demo.o
+
+run_demo: demo
+	./demo
+
+test: test.o HashMap.o
+	g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 test.o HashMap.o -o test
+
+test.o: test.cpp HashMap.h
+	g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 -c test.cpp -o test.o
+
+run_test: test
+	./test
+
+clean:
+	rm -f *.o demo test log.txt
+
+rebuild: clean all
