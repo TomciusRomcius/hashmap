@@ -3,7 +3,7 @@
 #include <iostream>
 
 int main() {
-  using Map = ip2::HashMap<std::string, int>;
+  using Map = Ip2::HashMap<std::string, int>;
 
   Map m(5);
   std::cout << m.toString() << "\n";

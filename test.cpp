@@ -50,7 +50,7 @@ int main() {
   };
 
   add("insert and containsKey", [&] {
-    ip2::HashMap<std::string, int> m(3);
+    Ip2::HashMap<std::string, int> m(3);
     m.insert("a", 1);
     m.insert("b", 2);
     if (!m.containsKey("a")) throw std::runtime_error("expected containsKey(a)=true");
@@ -59,17 +59,17 @@ int main() {
   });
 
   add("duplicate insert throws custom", [&] {
-    ip2::HashMap<std::string, int> m;
+    Ip2::HashMap<std::string, int> m;
     m.insert("dup", 1);
     try {
       m.insert("dup", 2);
       throw std::runtime_error("expected DuplicateKey");
-    } catch (const ip2::HashMap<std::string, int>::DuplicateKey&) {
+    } catch (const Ip2::HashMap<std::string, int>::DuplicateKey&) {
     }
   });
 
   add("erase existing and missing throws", [&] {
-    ip2::HashMap<std::string, int> m;
+    Ip2::HashMap<std::string, int> m;
     m.insert("x", 42);
     m.erase("x");
     if (!m.empty()) throw std::runtime_error("expected empty after erase");
@@ -81,14 +81,14 @@ int main() {
   });
 
   add("update existing value", [&] {
-    ip2::HashMap<std::string, int> m;
+    Ip2::HashMap<std::string, int> m;
     m.insert("k", 10);
     m.update("k", 20);
     if (m.at("k") != 20) throw std::runtime_error("expected updated value");
   });
 
   add("update missing throws", [&] {
-    ip2::HashMap<std::string, int> m;
+    Ip2::HashMap<std::string, int> m;
     try {
       m.update("missing", 1);
       throw std::runtime_error("expected out_of_range");
@@ -97,7 +97,7 @@ int main() {
   });
 
   add("clear empties map", [&] {
-    ip2::HashMap<std::string, int> m;
+    Ip2::HashMap<std::string, int> m;
     m.insert("a", 1);
     m.insert("b", 2);
     m.clear();
@@ -105,17 +105,17 @@ int main() {
   });
 
   add("copy is independent", [&] {
-    ip2::HashMap<std::string, int> a;
+    Ip2::HashMap<std::string, int> a;
     a.insert("k1", 10);
     a.insert("k2", 20);
 
-    ip2::HashMap<std::string, int> b = a;
+    Ip2::HashMap<std::string, int> b = a;
     b.update("k1", 999);
     if (a.at("k1") != 10) throw std::runtime_error("copy is not independent");
   });
 
   add("operator[] inserts default value", [&] {
-    ip2::HashMap<std::string, int> m;
+    Ip2::HashMap<std::string, int> m;
     if (m.size() != 0) throw std::runtime_error("expected initial size 0");
     int& value = m["new-key"];
     if (value != 0) throw std::runtime_error("expected default initialized int");
@@ -125,7 +125,7 @@ int main() {
   });
 
   add("at missing throws", [&] {
-    ip2::HashMap<std::string, int> m;
+    Ip2::HashMap<std::string, int> m;
     try {
       (void)m.at("missing");
       throw std::runtime_error("expected out_of_range");

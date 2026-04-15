@@ -8,9 +8,10 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
-#include <vector>
 
-namespace ip2 {
+#include "arraylist.h"
+
+namespace Ip2 {
 
 template <typename Key, typename Value>
 class HashMap final {
@@ -140,7 +141,7 @@ private:
       return;
     }
     const std::size_t newBucketCount = buckets.size() * 2 + 1;
-    std::vector<std::forward_list<Entry>> newBuckets(newBucketCount);
+    ArrayList<std::forward_list<Entry>> newBuckets(newBucketCount);
     for (const auto& bucket : buckets) {
       for (const auto& entry : bucket) {
         const std::size_t newIdx = std::hash<Key>{}(entry.first) % newBuckets.size();
@@ -150,8 +151,8 @@ private:
     buckets = std::move(newBuckets);
   }
 
-  std::vector<std::forward_list<Entry>> buckets;
+  ArrayList<std::forward_list<Entry>> buckets;
   std::size_t itemCount;
 };
 
-} // namespace ip2
+} // namespace Ip2
