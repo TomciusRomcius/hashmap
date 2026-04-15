@@ -1,4 +1,4 @@
-#include "HashMap.h"
+#include "hashMap.h"
 
 #include <fstream>
 #include <functional>
@@ -131,6 +131,45 @@ int main() {
       throw std::runtime_error("expected out_of_range");
     } catch (const std::out_of_range&) {
     }
+  });
+
+  add("equality operators", [&] {
+    Ip2::HashMap<std::string, int> a;
+    Ip2::HashMap<std::string, int> b;
+    a.insert("x", 1);
+    b.insert("x", 1);
+    if (!(a == b)) throw std::runtime_error("expected a == b");
+    b.update("x", 2);
+    if (!(a != b)) throw std::runtime_error("expected a != b");
+  });
+
+  add("ordering operators", [&] {
+    Ip2::HashMap<std::string, int> small;
+    Ip2::HashMap<std::string, int> big;
+    small.insert("a", 1);
+    big.insert("a", 1);
+    big.insert("b", 2);
+    if (!(small < big)) throw std::runtime_error("expected small < big");
+    if (!(small <= big)) throw std::runtime_error("expected small <= big");
+    if (!(big > small)) throw std::runtime_error("expected big > small");
+    if (!(big >= small)) throw std::runtime_error("expected big >= small");
+  });
+
+  add("operator! clears map", [&] {
+    Ip2::HashMap<std::string, int> m;
+    m.insert("a", 10);
+    m.insert("b", 20);
+    !m;
+    if (!m.empty()) throw std::runtime_error("expected empty after operator!");
+  });
+
+  add("const at and bucket stats", [&] {
+    Ip2::HashMap<std::string, int> m(7);
+    m.insert("a", 1);
+    const Ip2::HashMap<std::string, int>& c = m;
+    if (c.at("a") != 1) throw std::runtime_error("expected const at(a)=1");
+    if (c.bucketCount() == 0) throw std::runtime_error("expected non-zero bucketCount");
+    if (c.loadFactor() <= 0.0) throw std::runtime_error("expected positive loadFactor");
   });
 
   log.line("SUMMARY:");

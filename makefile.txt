@@ -2,24 +2,30 @@
 
 all: demo test
 
-module: HashMap.o
+module: hashMap.o forwardList.o arrayList.o
 
-HashMap.o: HashMap.cpp HashMap.h
-	g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 -c HashMap.cpp -o HashMap.o
+hashMap.o: hashMap.cpp hashMap.h forwardList.h arrayList.h
+	g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 -c hashMap.cpp -o hashMap.o
 
-demo: demo.o HashMap.o
-	g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 demo.o HashMap.o -o demo
+forwardList.o: forwardList.cpp forwardList.h
+	g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 -c forwardList.cpp -o forwardList.o
 
-demo.o: demo.cpp HashMap.h
+arrayList.o: arrayList.cpp arrayList.h forwardList.h
+	g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 -c arrayList.cpp -o arrayList.o
+
+demo: demo.o hashMap.o forwardList.o arrayList.o
+	g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 demo.o hashMap.o forwardList.o arrayList.o -o demo
+
+demo.o: demo.cpp hashMap.h
 	g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 -c demo.cpp -o demo.o
 
 run_demo: demo
 	./demo
 
-test: test.o HashMap.o
-	g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 test.o HashMap.o -o test
+test: test.o hashMap.o forwardList.o arrayList.o
+	g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 test.o hashMap.o forwardList.o arrayList.o -o test
 
-test.o: test.cpp HashMap.h
+test.o: test.cpp hashMap.h
 	g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 -c test.cpp -o test.o
 
 run_test: test

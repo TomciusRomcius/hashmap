@@ -1,12 +1,11 @@
-#include "HashMap.h"
+#include "hashMap.h"
 
-#include <algorithm>
-#include <forward_list>
 #include <functional>
 #include <sstream>
 #include <utility>
 
-#include "arraylist.h"
+#include "arrayList.h"
+#include "forwardList.h"
 
 namespace Ip2 {
 
@@ -28,12 +27,12 @@ public:
       return;
     }
     const std::size_t newBucketCount = buckets.size() * 2 + 1;
-    ArrayList<std::forward_list<Entry>> newBuckets(newBucketCount);
+    ArrayList<ForwardList<Entry>> newBuckets(newBucketCount);
     for (const auto& bucket : buckets) {
-      for (const auto& entry : bucket) {
+      bucket.for_each([&](const Entry& entry) {
         const std::size_t newIdx = std::hash<Key>{}(entry.first) % newBuckets.size();
         newBuckets[newIdx].push_front(entry);
-      }
+      });
     }
     buckets = std::move(newBuckets);
   }
@@ -47,7 +46,7 @@ public:
                : static_cast<double>(itemCount) / static_cast<double>(buckets.size());
   }
 
-  ArrayList<std::forward_list<Entry>> buckets;
+  ArrayList<ForwardList<Entry>> buckets;
   std::size_t itemCount;
 };
 
@@ -99,14 +98,12 @@ template <typename Key, typename Value>
 void HashMap<Key, Value>::erase(const Key& key) {
   const std::size_t idx = impl->bucketIndex(key);
   auto& bucket = impl->buckets[idx];
-  auto prev = bucket.before_begin();
-  for (auto it = bucket.begin(); it != bucket.end(); ++it) {
-    if (it->first == key) {
-      bucket.erase_after(prev);
-      --impl->itemCount;
-      return;
-    }
-    ++prev;
+  const bool removed = bucket.erase_first_if([&](const Entry& entry) {
+    return entry.first == key;
+  });
+  if (removed) {
+    --impl->itemCount;
+    return;
   }
   throw std::out_of_range("HashMap: key not found");
 }
@@ -121,51 +118,127 @@ template <typename Key, typename Value>
 bool HashMap<Key, Value>::containsKey(const Key& key) const {
   const std::size_t idx = impl->bucketIndex(key);
   const auto& bucket = impl->buckets[idx];
-  return std::find_if(bucket.begin(), bucket.end(), [&](const Entry& entry) {
+  return bucket.find_if([&](const Entry& entry) {
            return entry.first == key;
-         }) != bucket.end();
+         }) != nullptr;
 }
 
 template <typename Key, typename Value>
 Value& HashMap<Key, Value>::at(const Key& key) {
   const std::size_t idx = impl->bucketIndex(key);
   auto& bucket = impl->buckets[idx];
-  auto it = std::find_if(bucket.begin(), bucket.end(), [&](Entry& entry) {
+  Entry* found = bucket.find_if([&](const Entry& entry) {
     return entry.first == key;
   });
-  if (it == bucket.end()) {
+  if (found == nullptr) {
     throw std::out_of_range("HashMap: key not found");
   }
-  return it->second;
+  return found->second;
 }
 
 template <typename Key, typename Value>
 const Value& HashMap<Key, Value>::at(const Key& key) const {
   const std::size_t idx = impl->bucketIndex(key);
   const auto& bucket = impl->buckets[idx];
-  auto it = std::find_if(bucket.begin(), bucket.end(), [&](const Entry& entry) {
+  const Entry* found = bucket.find_if([&](const Entry& entry) {
     return entry.first == key;
   });
-  if (it == bucket.end()) {
+  if (found == nullptr) {
     throw std::out_of_range("HashMap: key not found");
   }
-  return it->second;
+  return found->second;
 }
 
 template <typename Key, typename Value>
 Value& HashMap<Key, Value>::operator[](const Key& key) {
   const std::size_t idx = impl->bucketIndex(key);
   auto& bucket = impl->buckets[idx];
-  auto it = std::find_if(bucket.begin(), bucket.end(), [&](Entry& entry) {
+  Entry* found = bucket.find_if([&](const Entry& entry) {
     return entry.first == key;
   });
-  if (it != bucket.end()) {
-    return it->second;
+  if (found != nullptr) {
+    return found->second;
   }
   bucket.push_front(Entry(key, Value{}));
   ++impl->itemCount;
   impl->rehashIfNeeded();
   return at(key);
+}
+
+template <typename Key, typename Value>
+HashMap<Key, Value>& HashMap<Key, Value>::operator!() {
+  clear();
+  return *this;
+}
+
+template <typename Key, typename Value>
+bool HashMap<Key, Value>::operator==(const HashMap& other) const {
+  if (size() != other.size()) {
+    return false;
+  }
+
+  for (const auto& bucket : impl->buckets) {
+    bool mismatch = false;
+    bucket.for_each([&](const Entry& entry) {
+      const std::size_t otherIdx = other.impl->bucketIndex(entry.first);
+      const auto& otherBucket = other.impl->buckets[otherIdx];
+      const Entry* otherIt = otherBucket.find_if([&](const Entry& candidate) {
+        return candidate.first == entry.first;
+      });
+
+      if (otherIt == nullptr || !(otherIt->second == entry.second)) {
+        mismatch = true;
+      }
+    });
+    if (mismatch) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+template <typename Key, typename Value>
+bool HashMap<Key, Value>::operator!=(const HashMap& other) const {
+  return !(*this == other);
+}
+
+template <typename Key, typename Value>
+bool HashMap<Key, Value>::operator<=(const HashMap& other) const {
+  for (const auto& bucket : impl->buckets) {
+    bool missing = false;
+    bucket.for_each([&](const Entry& entry) {
+      const std::size_t otherIdx = other.impl->bucketIndex(entry.first);
+      const auto& otherBucket = other.impl->buckets[otherIdx];
+      const Entry* otherIt = otherBucket.find_if([&](const Entry& candidate) {
+        return candidate.first == entry.first;
+      });
+
+      if (otherIt == nullptr || !(otherIt->second == entry.second)) {
+        missing = true;
+      }
+    });
+    if (missing) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+template <typename Key, typename Value>
+bool HashMap<Key, Value>::operator<(const HashMap& other) const {
+  return size() < other.size() && (*this <= other);
+}
+
+template <typename Key, typename Value>
+bool HashMap<Key, Value>::operator>(const HashMap& other) const {
+  return other < *this;
+}
+
+template <typename Key, typename Value>
+bool HashMap<Key, Value>::operator>=(const HashMap& other) const {
+  return other <= *this;
 }
 
 template <typename Key, typename Value>
