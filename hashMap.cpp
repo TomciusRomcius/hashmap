@@ -9,6 +9,9 @@
 
 namespace Ip2 {
 
+DuplicateKey::DuplicateKey(const std::string& what_arg)
+  : std::invalid_argument(what_arg) {}
+
 template <typename Key, typename Value>
 class HashMap<Key, Value>::Impl final {
 public:
@@ -49,10 +52,6 @@ public:
   ArrayList<ForwardList<Entry>> buckets;
   std::size_t itemCount;
 };
-
-template <typename Key, typename Value>
-HashMap<Key, Value>::DuplicateKey::DuplicateKey(const std::string& what_arg)
-    : std::invalid_argument(what_arg) {}
 
 template <typename Key, typename Value>
 HashMap<Key, Value>::HashMap() : HashMap(11) {}

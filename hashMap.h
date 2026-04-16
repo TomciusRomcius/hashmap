@@ -8,18 +8,17 @@
 
 namespace Ip2 {
 
+class DuplicateKey : public std::invalid_argument {
+public:
+  explicit DuplicateKey(const std::string& what_arg);
+};
+
 // Hash map ADT with unique keys and value lookup/update.
 // Uses bucket storage using a forward list to store the entries.
 template <typename Key, typename Value>
 class HashMap final {
 public:
   using Entry = std::pair<Key, Value>;
-
-  // Thrown when trying to insert an already existing key.
-  class DuplicateKey : public std::invalid_argument {
-  public:
-    explicit DuplicateKey(const std::string& what_arg);
-  };
 
   // Creates a map with default bucket count.
   HashMap();
@@ -42,16 +41,22 @@ public:
   // Returns reference to stored value. Throws std::out_of_range if missing.
   Value& at(const Key& key);
   const Value& at(const Key& key) const;
-  // Returns reference to value for key; inserts default value if missing.
+  // Returns reference to value for key. Inserts default value if missing.
   Value& operator[](const Key& key);
   // Clears all entries.
   HashMap& operator!();
 
+  // True if both maps contain the same keys with equal values.
   bool operator==(const HashMap& other) const;
+  // Negation of operator==.
   bool operator!=(const HashMap& other) const;
+  // Strict ordering: subset ordering by keys/values, with smaller size.
   bool operator<(const HashMap& other) const;
+  // Non-strict ordering: true if every key/value in this map exists in `other`.
   bool operator<=(const HashMap& other) const;
+  // Strict ordering: true if `other < *this`.
   bool operator>(const HashMap& other) const;
+  // Non-strict ordering: true if `other <= *this`.
   bool operator>=(const HashMap& other) const;
 
   std::size_t size() const;
