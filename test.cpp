@@ -64,7 +64,7 @@ int main() {
     try {
       m.insert("dup", 2);
       throw std::runtime_error("expected DuplicateKey");
-    } catch (const Ip2::HashMap<std::string, int>::DuplicateKey&) {
+    } catch (const Ip2::DuplicateKey&) {
     }
   });
 
