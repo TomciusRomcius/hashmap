@@ -1,0 +1,42 @@
+TEST: insert and containsKey
+RESULT: PASS
+----
+TEST: duplicate insert throws custom
+RESULT: PASS
+----
+TEST: erase existing and missing throws
+RESULT: PASS
+----
+TEST: update existing value
+RESULT: PASS
+----
+TEST: update missing throws
+RESULT: PASS
+----
+TEST: clear empties map
+RESULT: PASS
+----
+TEST: copy is independent
+RESULT: PASS
+----
+TEST: operator[] inserts default value
+RESULT: PASS
+----
+TEST: at missing throws
+RESULT: PASS
+----
+TEST: equality operators
+RESULT: PASS
+----
+TEST: ordering operators
+RESULT: PASS
+----
+TEST: operator! clears map
+RESULT: PASS
+----
+TEST: const at and bucket stats
+RESULT: PASS
+----
+SUMMARY:
+passed=13
+total=13

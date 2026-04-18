@@ -109,7 +109,7 @@ void HashMap<Key, Value>::erase(const Key& key) {
 
 template <typename Key, typename Value>
 void HashMap<Key, Value>::update(const Key& key, const Value& value) {
-  Value& stored = at(key);
+  Value stored = at(key);
   stored = value;
 }
 

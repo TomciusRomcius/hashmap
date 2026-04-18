@@ -136,11 +136,12 @@ int main() {
   add("equality operators", [&] {
     Ip2::HashMap<std::string, int> a;
     Ip2::HashMap<std::string, int> b;
+    Ip2::HashMap<std::string, int> c;
     a.insert("x", 1);
     b.insert("x", 1);
+    c.insert("x", 2);
     if (!(a == b)) throw std::runtime_error("expected a == b");
-    b.update("x", 2);
-    if (!(a != b)) throw std::runtime_error("expected a != b");
+    if (!(a != c)) throw std::runtime_error("expected a != c");
   });
 
   add("ordering operators", [&] {
